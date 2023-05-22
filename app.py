@@ -43,9 +43,10 @@ def main():
     if image_file!=None:
         st.image(Image.open(image_file),width=250)
         if st.button('Captionize'):
-            caption = generate_caption_for_img(image_file)
-            st.write('Image Description: ',caption[0])
-            st.write('Caption: ',caption[1])
+            img_desc = generate_desc(image_file)
+            st.write('Image Description: ',img_desc)
+            for i in range(5):
+                st.write(f'Caption-{i+1}: ',generate_caption(img_desc))
 
 if __name__ == '__main__':
     main()
