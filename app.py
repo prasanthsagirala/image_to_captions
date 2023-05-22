@@ -3,6 +3,7 @@ from PIL import Image
 import requests
 from transformers import (BlipProcessor, BlipForConditionalGeneration, 
                           AutoTokenizer, AutoModelForSeq2SeqLM)
+import torch
 
 #Load the models
 @st.cache_resource
