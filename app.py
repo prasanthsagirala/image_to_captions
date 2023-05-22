@@ -3,7 +3,6 @@ from PIL import Image
 import requests
 from transformers import (BlipProcessor, BlipForConditionalGeneration, 
                           AutoTokenizer, AutoModelForSeq2SeqLM)
-import torch
 
 #Load the models
 @st.cache_resource
@@ -17,25 +16,15 @@ def get_models():
 
 blip_processor,blip_model,t5_tokenizer,t5_model = get_models()
 
-def generate_desc(img_url,text,url):
-    if url==True:
-        raw_image = Image.open(requests.get(img_url, stream=True).raw).convert('RGB')
-    else:
-        raw_image = Image.open(img_url).convert('RGB')
+def generate_desc(img_url):
+    raw_image = Image.open(img_url).convert('RGB')
     
-    if text!='':
-        # conditional image captioning
-        inputs = blip_processor(raw_image, text, return_tensors="pt")
-        out = blip_model.generate(**inputs)
-        return(blip_processor.decode(out[0], skip_special_tokens=True))
-    else:
-        # unconditional image captioning
-        inputs = blip_processor(raw_image, return_tensors="pt")
-        out = blip_model.generate(**inputs)
-        return(blip_processor.decode(out[0], skip_special_tokens=True))
+    inputs = blip_processor(raw_image, return_tensors="pt")
+    out = blip_model.generate(**inputs)
+    return(blip_processor.decode(out[0], skip_special_tokens=True))
     
 
-def generate_caption(text = """a woman playing soccer"""):
+def generate_caption(text):
     
     inputs = ["captionize: " + text]
     
@@ -45,19 +34,9 @@ def generate_caption(text = """a woman playing soccer"""):
     
     return decoded_output
 
-def generate_caption_for_img(img_link='https://storage.googleapis.com/sfr-vision-language-research/BLIP/demo.jpg',text = "",url=False,img_show=False):
-    
-    img_desc = generate_desc(img_link,text,url)
-    if img_show==True:
-        if url==True:
-            Image.open(requests.get(img_link, stream=True).raw).show()
-        else:
-            Image.open(img_link).show()
-
-    print('Image Description:',img_desc)
-    
+def generate_caption_for_img(img_link):    
+    img_desc = generate_desc(img_link)
     caption = generate_caption(img_desc)
-    print('Caption:',caption)
     return img_desc,caption
 
 #User Input
