@@ -11,29 +11,26 @@ def get_models():
     blip_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
     t5_tokenizer = AutoTokenizer.from_pretrained('prasanthsagirala/text-to-social-media-captions')
     t5_model = AutoModelForSeq2SeqLM.from_pretrained('prasanthsagirala/text-to-social-media-captions')
-    
     return blip_processor,blip_model,t5_tokenizer,t5_model
 
 blip_processor,blip_model,t5_tokenizer,t5_model = get_models()
 
+#get the description of image
 def generate_desc(img_url):
     raw_image = Image.open(img_url).convert('RGB')
-    
     inputs = blip_processor(raw_image, return_tensors="pt")
     out = blip_model.generate(**inputs)
     return(blip_processor.decode(out[0], skip_special_tokens=True))
     
-
+#get the caption for the description
 def generate_caption(text):
-    
     inputs = ["captionize: " + text]
-    
     inputs = t5_tokenizer(inputs, max_length=512, truncation=True, return_tensors="pt")
     output = t5_model.generate(**inputs, num_beams=8, do_sample=True, min_length=10, max_length=64)
     decoded_output = t5_tokenizer.batch_decode(output, skip_special_tokens=True)[0]
-    
     return decoded_output
 
+#get the caption for the image
 def generate_caption_for_img(img_link):    
     img_desc = generate_desc(img_link)
     caption = generate_caption(img_desc)
